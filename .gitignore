@@ -1,0 +1,13 @@
+/.idea
+/.vscode
+/.claude
+/vendor
+/node_modules
+/coverage
+.DS_Store
+phpunit.xml
+.phpunit.result.cache
+.env.testing
+Thumbs.db
+!phpunit.*.xml
+.phpunit.cache

@@ -1,0 +1,23 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+parameters:
+    level: 5
+    paths:
+        - src
+
+    # These methods exist at runtime: search()/searchableAs() come from the
+    # Scout trait composed by Shopper\Core\Models\Traits\Searchable, and the
+    # visibility scopes are guarded by hasNamedScope() before being called.
+    ignoreErrors:
+        -
+            message: '#Call to an undefined method Laravel\\Scout\\Engines\\Engine::getMultiSearch\(\)#'
+            identifier: method.notFound
+        -
+            message: '#Call to an undefined static method Illuminate\\Database\\Eloquent\\Model::search\(\)#'
+            identifier: staticMethod.notFound
+        -
+            message: '#Call to an undefined method Illuminate\\Database\\Eloquent\\Model::searchableAs\(\)#'
+            identifier: method.notFound
+        -
+            message: '#Call to an undefined method Illuminate\\Database\\Eloquent\\Builder<Illuminate\\Database\\Eloquent\\Model>::(publish|published|enabled)\(\)#'
+            identifier: method.notFound
