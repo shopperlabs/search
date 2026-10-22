@@ -22,7 +22,11 @@ final class SuggestController
         ]);
 
         $query = (string) $request->string('q');
-        $sections = Search::storefront($query, min(max($request->integer('page.size', 5), 1), 20));
+        $sections = Search::storefront(
+            $query,
+            min(max($request->integer('page.size', 5), 1), 20),
+            $request->attributes->get('shopper_channel'),
+        );
 
         $hits = $sections->flatMap(fn (SearchResults $results, string $type): array => array_map(
             fn (SearchHit $hit): SearchHitResource => new SearchHitResource($hit, $type),

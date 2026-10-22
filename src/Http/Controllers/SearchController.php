@@ -20,6 +20,7 @@ final class SearchController
         $maxPage = (int) config('shopper.api.pagination.max_page', 100);
 
         $engine = Search::query((string) $request->string('q'))
+            ->channel($request->attributes->get('shopper_channel'))
             ->setFacets(array_filter((array) $request->input('facets', [])))
             ->perPage(min(max($request->integer('page.size', $default), 1), $max))
             ->page(min(max($request->integer('page.number', 1), 1), $maxPage));

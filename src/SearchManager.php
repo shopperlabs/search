@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Shopper\Core\Models\Brand;
 use Shopper\Core\Models\Category;
 use Shopper\Core\Models\Collection as ProductCollection;
+use Shopper\Core\Models\Contracts\Channel;
 use Shopper\Core\Models\Product;
 use Shopper\Enum\FeatureState;
 use Shopper\Search\Contracts\SearchManagerContract;
@@ -55,13 +56,14 @@ final class SearchManager extends Manager implements SearchManagerContract
     /**
      * @return Collection<string, SearchResults>
      */
-    public function storefront(string $query, int $perPage = 5): Collection
+    public function storefront(string $query, int $perPage = 5, (Channel&Model)|null $channel = null): Collection
     {
         return collect(self::STOREFRONT_TYPES)
             ->filter(fn (array $type): bool => $type[1] === null || $this->featureEnabled($type[1]))
             ->map(fn (array $type): SearchResults => $this->model($type[0]::configuredClass())
                 ->driver()
                 ->query($query)
+                ->channel($channel)
                 ->perPage($perPage)
                 ->get());
     }

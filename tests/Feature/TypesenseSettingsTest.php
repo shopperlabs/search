@@ -10,7 +10,13 @@ it('generates typesense model settings from the indexers', function (): void {
     expect($settings)->not->toBeNull()
         ->and($settings['search-parameters']['query_by'])->toContain('name')
         ->and(collect($settings['collection-schema']['fields'])->firstWhere('name', 'brand'))
-        ->toMatchArray(['facet' => true])
+        ->toMatchArray(['type' => 'string', 'facet' => true, 'optional' => true])
+        ->and(collect($settings['collection-schema']['fields'])->firstWhere('name', 'channels'))
+        ->toMatchArray(['type' => 'string[]', 'facet' => true, 'optional' => true])
+        ->and(collect($settings['collection-schema']['fields'])->firstWhere('name', 'skus'))
+        ->toMatchArray(['type' => 'string[]', 'optional' => true])
+        ->and(collect($settings['collection-schema']['fields'])->firstWhere('name', 'description'))
+        ->toMatchArray(['type' => 'string', 'optional' => true])
         ->and(collect($settings['collection-schema']['fields'])->firstWhere('name', 'created_at'))
         ->toMatchArray(['type' => 'int64', 'sort' => true]);
 });

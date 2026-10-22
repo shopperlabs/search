@@ -8,6 +8,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Shopper\Core\Models\Contracts\Channel;
 use Shopper\Core\Models\Product;
 use Shopper\Search\Data\Builder\SearchQuery;
 use Shopper\Search\Data\SearchResults;
@@ -19,6 +20,8 @@ abstract class AbstractEngine
     protected string $modelType;
 
     protected ?string $query = null;
+
+    protected (Channel&Model)|null $channel = null;
 
     /** @var array<string, mixed> */
     protected array $filters = [];
@@ -64,6 +67,13 @@ abstract class AbstractEngine
     public function getQuery(): ?string
     {
         return $this->query;
+    }
+
+    public function channel((Channel&Model)|null $channel): static
+    {
+        $this->channel = $channel;
+
+        return $this;
     }
 
     /**
