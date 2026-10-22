@@ -30,6 +30,10 @@ final class TypesenseEngine extends AbstractEngine
                 );
 
                 foreach ($response['results'] as $result) {
+                    if (($result['code'] ?? null) === 404) {
+                        return ['found' => 0, 'hits' => [], 'facet_counts' => []];
+                    }
+
                     if (isset($result['error'])) {
                         throw new TypesenseClientError((string) $result['error'], (int) ($result['code'] ?? 0));
                     }
@@ -105,6 +109,10 @@ final class TypesenseEngine extends AbstractEngine
 
             foreach ($this->filters as $field => $value) {
                 $filters->push($field.':'.collect($value)->map($this->sanitize(...))->join(','));
+            }
+
+            if ($this->channel !== null && collect($this->getFieldConfig())->contains('name', 'channels')) {
+                $filters->push('channels:=`'.$this->sanitize($this->channel->getAttribute('public_id')).'`');
             }
 
             foreach ($searchQuery->facetFilters as $field => $values) {

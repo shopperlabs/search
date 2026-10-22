@@ -23,6 +23,10 @@ final class DatabaseEngine extends AbstractEngine
             }
         }
 
+        if ($this->channel !== null && $query->hasNamedScope('channel')) {
+            $query->scopes(['channel' => [[$this->channel->getKey()]]]);
+        }
+
         if ($this->query) {
             $this->applySearchTerm($query);
         }

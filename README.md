@@ -32,7 +32,7 @@ php artisan scout:import "Shopper\Core\Models\Product"
 
 A product is indexed when it is saved, visible and already published. Nothing saves it again when a future `published_at` comes due, so schedule `scout:import` (daily, for instance) if you plan publications ahead.
 
-Collection schemas and `query_by` parameters are generated automatically from the core indexers. Define your own `scout.typesense.model-settings` entry for a model to take full control.
+Collection schemas and `query_by` parameters are generated automatically from the core indexers. Searchable and filterable fields are declared as optional `string` fields, except `categories`, `channels` and `skus`, which are `string[]`; sortable fields are `int64`. A custom indexer with other list or numeric fields needs its own `scout.typesense.model-settings` entry, which also lets you take full control of any model.
 
 ## Usage
 
@@ -55,6 +55,12 @@ Search another model:
 Search::model(config('shopper.models.order'))->query('SO-1234')->get();
 ```
 
+Limit products to a sales channel:
+
+```php
+Search::query('running shoes')->channel($channel)->get();
+```
+
 Facets stay accurate when filters are applied: each active facet is re-queried without its own filter (disjunctive faceting), so the counts of the other values remain visible.
 
 ## Store API
@@ -70,13 +76,15 @@ GET /store/search/suggest?q=sho&page[size]=5
 
 `/search/suggest` searches products, brands, categories and collections at once, returning up to `page[size]` hits per type (5 by default, 20 at most).
 
-Both return a JSON:API document. Each hit is a resource object typed after its model, with the indexed document as attributes. Typesense highlights land in the resource `meta.highlights`:
+Both routes follow the channel the Store API resolves from the `X-Shopper-Channel` header (or `SHOPPER_API_DEFAULT_CHANNEL`): products outside that channel are left out, as on the catalog endpoints. Brands, categories and collections are not scoped by channel. Without a channel, every published product is searched.
+
+Both return a JSON:API document. Each hit is a resource object typed after its model and identified by its `public_id`, the same id the Store API catalog endpoints return, with the indexed document as attributes. Typesense highlights land in the resource `meta.highlights`:
 
 ```json
 {
   "data": [
     {
-      "id": "42",
+      "id": "01K7Z9YH3N0Q8M4X2T6V5R1B9C",
       "type": "products",
       "attributes": { "name": "Running Shoes", "slug": "running-shoes", "brand": "Nike", "created_at": 1760000000 }
     }

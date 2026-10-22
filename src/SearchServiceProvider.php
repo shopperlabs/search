@@ -15,6 +15,8 @@ use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 final class SearchServiceProvider extends PackageServiceProvider
 {
+    private const LIST_FIELDS = ['categories', 'channels', 'skus'];
+
     public function configurePackage(Package $package): void
     {
         $package
@@ -49,11 +51,15 @@ final class SearchServiceProvider extends PackageServiceProvider
             $sortable = $indexer->getSortableFields();
 
             foreach ($filterable as $field) {
-                $fields[] = ['name' => $field, 'type' => 'auto', 'facet' => true, 'optional' => true, 'sort' => in_array($field, $sortable, true)];
+                $fields[] = ['name' => $field, 'type' => $this->typesenseType($field), 'facet' => true, 'optional' => true, 'sort' => in_array($field, $sortable, true)];
             }
 
             foreach (array_diff($sortable, $filterable) as $field) {
                 $fields[] = ['name' => $field, 'type' => 'int64', 'optional' => true, 'sort' => true];
+            }
+
+            foreach (array_diff($indexer->getSearchableFields(), $filterable, $sortable) as $field) {
+                $fields[] = ['name' => $field, 'type' => $this->typesenseType($field), 'optional' => true];
             }
 
             $fields[] = ['name' => '.*', 'type' => 'auto'];
@@ -65,6 +71,11 @@ final class SearchServiceProvider extends PackageServiceProvider
                 ],
             ]);
         }
+    }
+
+    private function typesenseType(string $field): string
+    {
+        return in_array($field, self::LIST_FIELDS, true) ? 'string[]' : 'string';
     }
 
     private function registerStoreRoutes(): void
